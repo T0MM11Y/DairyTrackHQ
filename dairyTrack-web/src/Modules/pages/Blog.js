@@ -1083,11 +1083,11 @@ const Blog = () => {
           left: 0;
           width: 100vw;
           height: 100vh;
-          background: ${theme.gradients.hero};
+          background: rgba(0, 0, 0, 0.8); /* Layar gelap */
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 9999;
+          z-index: 9999; /* Pastikan di atas semua elemen */
         }
 
         .loading-content {
@@ -1099,13 +1099,13 @@ const Blog = () => {
           position: relative;
           width: 80px;
           height: 80px;
-          margin: 0 auto 2rem;
+          margin: 0 auto 1rem;
         }
 
         .spinner-ring {
           position: absolute;
-          border: 3px solid transparent;
-          border-top: 3px solid white;
+          border: 4px solid transparent;
+          border-top: 4px solid white;
           border-radius: 50%;
           animation: spin 1.2s linear infinite;
         }
@@ -1114,6 +1114,7 @@ const Blog = () => {
           width: 80px;
           height: 80px;
         }
+
         .spinner-ring:nth-child(2) {
           width: 60px;
           height: 60px;
@@ -1121,6 +1122,7 @@ const Blog = () => {
           left: 10px;
           animation-delay: -0.4s;
         }
+
         .spinner-ring:nth-child(3) {
           width: 40px;
           height: 40px;

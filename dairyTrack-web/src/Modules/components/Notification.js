@@ -258,9 +258,14 @@ const NotificationDropdown = () => {
     });
   }, [notifications, markAsRead]);
 
-  const formatTimeAgo = useCallback((dateString) => {
+  const formatTimeAgo = useCallback((dateString, dateStringWib) => {
     try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+      // Use created_at if available, otherwise fallback to created_at_wib
+      const dateToUse = dateString || dateStringWib;
+      if (!dateToUse) {
+        return "Date unknown";
+      }
+      return formatDistanceToNow(new Date(dateToUse), { addSuffix: true });
     } catch {
       return "Date unknown";
     }
@@ -406,7 +411,7 @@ const NotificationDropdown = () => {
                         <div className="flex-grow-1">
                           <div className="d-flex justify-content-between align-items-center">
                             <span className="small text-muted">
-                              {formatTimeAgo(n.created_at)}
+                              {formatTimeAgo(n.created_at, n.created_at_wib)}
                             </span>
                             {!n.is_read && (
                               <Badge bg="primary" pill style={{ fontSize: 9 }}>
@@ -558,7 +563,7 @@ const NotificationDropdown = () => {
                     <div className="flex-grow-1">
                       <div className="d-flex justify-content-between align-items-center">
                         <span className="small text-muted">
-                          {formatTimeAgo(n.created_at)}
+                          {formatTimeAgo(n.created_at, n.created_at_wib)}
                         </span>
                         {!n.is_read ? (
                           <Button
