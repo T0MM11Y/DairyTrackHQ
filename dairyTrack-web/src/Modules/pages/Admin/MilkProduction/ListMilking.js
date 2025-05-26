@@ -32,7 +32,6 @@ import {
 } from "../../../../Modules/controllers/milkProductionController";
 
 const ListMilking = () => {
-  // ========== STATE MANAGEMENT ==========
   const [currentUser, setCurrentUser] = useState(null);
   const [cowList, setCowList] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -43,21 +42,18 @@ const ListMilking = () => {
   const [userManagedCows, setUserManagedCows] = useState([]);
   const [farmers, setFarmers] = useState([]);
 
-  // UI state
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCow, setSelectedCow] = useState("");
   const [selectedMilker, setSelectedMilker] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  // Modal state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [viewSession, setViewSession] = useState(null);
 
-  // Form state
   const [newSession, setNewSession] = useState({
     cow_id: "",
     milker_id: "",
@@ -68,8 +64,6 @@ const ListMilking = () => {
 
   const sessionsPerPage = 8;
 
-  // ========== UTILITY FUNCTIONS ==========
-  // Get local date and time helpers
   function getLocalDateTime() {
     const now = new Date();
     return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -116,51 +110,43 @@ const ListMilking = () => {
     setNewSession({
       ...newSession,
       cow_id: cowId,
-      milker_id: "", // Reset milker selection
+      milker_id: "",
     });
 
-    // Fetch farmers for selected cow if admin
     if (currentUser?.role_id === 1) {
       fetchFarmersForCow(cowId);
     }
   };
 
-  // Handle cow selection in edit modal
   const handleCowSelectionInEdit = (cowId) => {
     setSelectedSession({
       ...selectedSession,
       cow_id: cowId,
-      milker_id: "", // Reset milker selection
+      milker_id: "",
     });
 
-    // Fetch farmers for selected cow if admin
     if (currentUser?.role_id === 1) {
       fetchFarmersForCow(cowId);
     }
   };
-  // Convert timestamp to local date string for filtering
+
   const getSessionLocalDate = useCallback((timestamp) => {
     const date = new Date(timestamp);
     return getLocalDateString(date);
   }, []);
 
-  // ========== DATA FETCHING ==========
-  // Fetch user data and initialize session
   useEffect(() => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       if (userData) {
         setCurrentUser(userData);
 
-        // Debug logging
         console.log("ListMilking - User data:", userData);
 
-        // Use consistent property name - prefer 'id' over 'user_id'
         const userId = userData.id || userData.user_id;
         console.log("ListMilking - User ID:", userId);
         console.log("ListMilking - Role ID:", userData.role_id);
 
-        // Admin (role_id === 1) bisa pilih milker, farmer otomatis pakai user_id mereka
         const milkerId = userData.role_id === 1 ? "" : String(userId || "");
         setNewSession((prev) => ({
           ...prev,
@@ -174,9 +160,7 @@ const ListMilking = () => {
     }
   }, []);
 
-  // Fetch user's managed cows
   useEffect(() => {
-    // Use consistent property name
     const userId = currentUser?.id || currentUser?.user_id;
     if (!userId) return;
 
@@ -194,7 +178,6 @@ const ListMilking = () => {
     fetchUserManagedCows();
   }, [currentUser]);
 
-  // Fetch farmers (for admins only)
   useEffect(() => {
     if (currentUser?.role_id !== 1) return;
 
@@ -214,7 +197,6 @@ const ListMilking = () => {
     fetchFarmers();
   }, [currentUser]);
 
-  // Fetch all cows
   useEffect(() => {
     const fetchCows = async () => {
       try {
@@ -230,7 +212,6 @@ const ListMilking = () => {
     fetchCows();
   }, []);
 
-  // Fetch milking sessions
   useEffect(() => {
     const fetchMilkingSessions = async () => {
       setLoading(true);
@@ -254,18 +235,14 @@ const ListMilking = () => {
     fetchMilkingSessions();
   }, []);
 
-  // ========== DATA PROCESSING & MEMOIZED VALUES ==========
-  // Today's date for filtering
   const today = useMemo(() => getLocalDateString(), []);
 
-  // Filter today's sessions using local date
   const todaySessions = useMemo(() => {
     return sessions.filter(
       (session) => getSessionLocalDate(session.milking_time) === today
     );
   }, [sessions, today, getSessionLocalDate]);
 
-  // Calculate today's volume
   const todayVolume = useMemo(() => {
     return todaySessions.reduce(
       (sum, session) => sum + parseFloat(session.volume || 0),
@@ -273,7 +250,6 @@ const ListMilking = () => {
     );
   }, [todaySessions]);
 
-  // Generate unique lists of cows and milkers for filtering
   const { uniqueCows, uniqueMilkers } = useMemo(() => {
     const cows = [...new Set(sessions.map((session) => session.cow_id))]
       .filter(Boolean)
@@ -294,12 +270,9 @@ const ListMilking = () => {
     return { uniqueCows: cows, uniqueMilkers: milkers };
   }, [sessions]);
 
-  // Update the milkStats calculation with the same enhanced search
   const milkStats = useMemo(() => {
-    // Start with all sessions or filtered by user role
     let baseSessions = sessions;
 
-    // Filter sessions for farmers (non-admin users)
     if (currentUser?.role_id !== 1 && userManagedCows.length > 0) {
       const managedCowIds = userManagedCows.map((cow) => String(cow.id));
       baseSessions = baseSessions.filter((session) =>
@@ -307,9 +280,7 @@ const ListMilking = () => {
       );
     }
 
-    // Apply current filters to base sessions
     let filteredSessions = baseSessions.filter((session) => {
-      // Enhanced search term - same logic as above
       const matchesSearch =
         !searchTerm ||
         (() => {
@@ -366,7 +337,6 @@ const ListMilking = () => {
           return searchFields.some((field) => field.includes(searchLower));
         })();
 
-      // Filter selects
       const matchesCow = selectedCow
         ? String(session.cow_id) === selectedCow
         : true;
@@ -374,7 +344,6 @@ const ListMilking = () => {
         ? String(session.milker_id) === selectedMilker
         : true;
 
-      // Date filter with local date handling
       const matchesDate = selectedDate
         ? getSessionLocalDate(session.milking_time) === selectedDate
         : true;
@@ -382,14 +351,12 @@ const ListMilking = () => {
       return matchesSearch && matchesCow && matchesMilker && matchesDate;
     });
 
-    // Calculate statistics for filtered data
     const totalVolume = filteredSessions.reduce(
       (sum, session) => sum + parseFloat(session.volume || 0),
       0
     );
     const totalSessions = filteredSessions.length;
 
-    // Today's filtered sessions using local date
     const filteredTodaySessions = filteredSessions.filter(
       (session) => getSessionLocalDate(session.milking_time) === today
     );
@@ -399,7 +366,6 @@ const ListMilking = () => {
       0
     );
 
-    // Base statistics (unfiltered, but respecting user role)
     const baseVolume = baseSessions.reduce(
       (sum, session) => sum + parseFloat(session.volume || 0),
       0
@@ -415,7 +381,6 @@ const ListMilking = () => {
     );
 
     return {
-      // Filtered statistics (shown when filters are active)
       totalVolume: totalVolume.toFixed(2),
       totalSessions,
       todayVolume: filteredTodayVolume.toFixed(2),
@@ -424,7 +389,6 @@ const ListMilking = () => {
         ? (totalVolume / totalSessions).toFixed(2)
         : "0.00",
 
-      // Base statistics (shown when no filters are active)
       baseTotalVolume: baseVolume.toFixed(2),
       baseTotalSessions,
       baseTodayVolume: baseTodayVolume.toFixed(2),
@@ -433,7 +397,6 @@ const ListMilking = () => {
         ? (baseVolume / baseTotalSessions).toFixed(2)
         : "0.00",
 
-      // Check if filters are active
       hasActiveFilters: !!(
         searchTerm ||
         selectedCow ||
@@ -453,12 +416,9 @@ const ListMilking = () => {
     getSessionLocalDate,
   ]);
 
-  // Filter, sort and paginate sessions
   const filteredAndPaginatedSessions = useMemo(() => {
-    // Filter sessions based on user role
     let filteredSessions = sessions;
 
-    // For non-admin users, show only their managed cows
     if (currentUser?.role_id !== 1 && userManagedCows.length > 0) {
       const managedCowIds = userManagedCows.map((cow) => String(cow.id));
       filteredSessions = filteredSessions.filter((session) =>
@@ -466,74 +426,60 @@ const ListMilking = () => {
       );
     }
 
-    // Apply search and filter logic
     filteredSessions = filteredSessions.filter((session) => {
-      // Enhanced search term - search across multiple fields
       const matchesSearch =
         !searchTerm ||
         (() => {
           const searchLower = searchTerm.toLowerCase().trim();
 
-          // Convert session date to searchable format
           const sessionDate = new Date(session.milking_time);
           const dateString = format(sessionDate, "yyyy-MM-dd");
           const timeString = format(sessionDate, "HH:mm");
           const fullDateTimeString = format(sessionDate, "yyyy-MM-dd HH:mm");
 
-          // Get time period
           const hours = sessionDate.getHours();
           let timePeriod = "";
           if (hours < 12) timePeriod = "morning";
           else if (hours < 18) timePeriod = "afternoon";
           else timePeriod = "evening";
 
-          // Search in various fields
           const searchFields = [
-            // Basic info
             session.cow_name?.toLowerCase() || "",
             session.milker_name?.toLowerCase() || "",
             String(session.cow_id),
             String(session.milker_id),
             String(session.id),
 
-            // Volume - search with and without decimals
             String(session.volume),
             String(parseFloat(session.volume || 0).toFixed(1)),
             String(parseFloat(session.volume || 0).toFixed(2)),
             String(Math.round(parseFloat(session.volume || 0))),
 
-            // Notes
             session.notes?.toLowerCase() || "",
 
-            // Date and time in various formats
             dateString,
             timeString,
             fullDateTimeString,
             timePeriod,
 
-            // Alternative date formats
             format(sessionDate, "dd/MM/yyyy"),
             format(sessionDate, "MM/dd/yyyy"),
             format(sessionDate, "dd-MM-yyyy"),
             format(sessionDate, "MM-dd-yyyy"),
             format(sessionDate, "yyyy/MM/dd"),
 
-            // Month and year
             format(sessionDate, "MMMM yyyy").toLowerCase(),
             format(sessionDate, "MMM yyyy").toLowerCase(),
             format(sessionDate, "MMMM").toLowerCase(),
             format(sessionDate, "MMM").toLowerCase(),
             format(sessionDate, "yyyy"),
 
-            // Day of week
             format(sessionDate, "EEEE").toLowerCase(),
             format(sessionDate, "EEE").toLowerCase(),
 
-            // Time formats
             format(sessionDate, "h:mm a").toLowerCase(),
             format(sessionDate, "HH:mm"),
 
-            // Volume with unit
             `${session.volume}l`,
             `${session.volume} l`,
             `${session.volume}liters`,
@@ -542,11 +488,9 @@ const ListMilking = () => {
             `${session.volume} liter`,
           ];
 
-          // Check if search term matches any field
           return searchFields.some((field) => field.includes(searchLower));
         })();
 
-      // Filter selects
       const matchesCow = selectedCow
         ? String(session.cow_id) === selectedCow
         : true;
@@ -554,7 +498,6 @@ const ListMilking = () => {
         ? String(session.milker_id) === selectedMilker
         : true;
 
-      // Date filter with local date handling
       const matchesDate = selectedDate
         ? getSessionLocalDate(session.milking_time) === selectedDate
         : true;
@@ -562,16 +505,27 @@ const ListMilking = () => {
       return matchesSearch && matchesCow && matchesMilker && matchesDate;
     });
 
-    // Sort by milking time, most recent first
-    filteredSessions.sort(
-      (a, b) => new Date(b.milking_time) - new Date(a.milking_time)
-    );
+    filteredSessions.sort((a, b) => {
+      if (a.created_at && b.created_at) {
+        const createdA = new Date(a.created_at);
+        const createdB = new Date(b.created_at);
+        if (createdB.getTime() !== createdA.getTime()) {
+          return createdB.getTime() - createdA.getTime();
+        }
+      }
 
-    // Calculate pagination
+      if ((b.id || 0) !== (a.id || 0)) {
+        return (b.id || 0) - (a.id || 0);
+      }
+
+      const dateA = new Date(a.milking_time);
+      const dateB = new Date(b.milking_time);
+      return dateB.getTime() - dateA.getTime();
+    });
+
     const totalItems = filteredSessions.length;
     const totalPages = Math.ceil(totalItems / sessionsPerPage);
 
-    // Get current page items
     const startIndex = (currentPage - 1) * sessionsPerPage;
     const paginatedItems = filteredSessions.slice(
       startIndex,
@@ -596,11 +550,9 @@ const ListMilking = () => {
     userManagedCows,
     getSessionLocalDate,
   ]);
-  // Check if user is a supervisor
+
   const isSupervisor = useMemo(() => currentUser?.role_id === 2, [currentUser]);
 
-  // ========== EVENT HANDLERS ==========
-  // Handle deletion of a milking session
   const handleDeleteSession = useCallback(async (sessionId) => {
     try {
       const result = await Swal.fire({
@@ -621,7 +573,7 @@ const ListMilking = () => {
             "The milking session has been deleted.",
             "success"
           );
-          // Refresh sessions
+
           const sessionsResponse = await getMilkingSessions();
           if (sessionsResponse.success && sessionsResponse.sessions) {
             setSessions(sessionsResponse.sessions);
@@ -640,12 +592,9 @@ const ListMilking = () => {
     }
   }, []);
 
-  // Open add modal with pre-filled data
   const handleOpenAddModal = useCallback(() => {
-    // Use consistent property name
     const userId = currentUser?.id || currentUser?.user_id;
 
-    // Admin bisa pilih milker, farmer otomatis pakai user_id mereka
     const milkerId = currentUser?.role_id === 1 ? "" : String(userId || "");
 
     console.log("Opening add modal - User role:", currentUser?.role_id);
@@ -661,23 +610,18 @@ const ListMilking = () => {
     setShowAddModal(true);
   }, [currentUser]);
 
-  // Add new milking session
   const handleAddSession = async (e) => {
     e.preventDefault();
 
-    // Enhanced debug logging
     console.log("=== ADD SESSION DEBUG ===");
     console.log("Current user:", currentUser);
     console.log("User role_id:", currentUser?.role_id);
 
-    // Use consistent property name
     const userId = currentUser?.id || currentUser?.user_id;
     console.log("User ID:", userId);
 
-    // Validation - ensure milker_id is not empty
     let finalMilkerId = newSession.milker_id;
 
-    // If admin and no milker selected, show error
     if (currentUser?.role_id === 1 && !finalMilkerId) {
       Swal.fire({
         icon: "warning",
@@ -687,12 +631,10 @@ const ListMilking = () => {
       return;
     }
 
-    // If farmer and milker_id is empty, use their own ID
     if (currentUser?.role_id !== 1 && !finalMilkerId) {
       finalMilkerId = String(userId || "");
     }
 
-    // Final validation - milker_id must not be empty
     if (!finalMilkerId) {
       Swal.fire({
         icon: "error",
@@ -704,7 +646,6 @@ const ListMilking = () => {
 
     console.log("Final milker_id:", finalMilkerId);
 
-    // Add creator info to notes
     const creatorInfo = currentUser
       ? `Created by: ${currentUser.name || currentUser.username} (Role: ${
           currentUser.role_id === 1
@@ -715,10 +656,9 @@ const ListMilking = () => {
         }, ID: ${userId})`
       : "Created by: Unknown";
 
-    // Create session data with creator info
     const sessionData = {
       ...newSession,
-      milker_id: finalMilkerId, // Use the validated milker_id
+      milker_id: finalMilkerId,
       volume: parseFloat(newSession.volume),
       notes: newSession.notes
         ? `${newSession.notes}\n\n${creatorInfo}`
@@ -741,14 +681,13 @@ const ListMilking = () => {
           showConfirmButton: false,
         });
 
-        // Refresh sessions list
         const sessionsResponse = await getMilkingSessions();
         if (sessionsResponse.success && sessionsResponse.sessions) {
           setSessions(sessionsResponse.sessions);
         }
 
         setShowAddModal(false);
-        // Reset form with appropriate milker_id
+
         const resetMilkerId =
           currentUser?.role_id === 1 ? "" : String(userId || "");
         setNewSession({
@@ -775,7 +714,6 @@ const ListMilking = () => {
     }
   };
 
-  // Open edit modal with session data
   const openEditModal = useCallback((session) => {
     const localMilkingTime = new Date(session.milking_time);
     localMilkingTime.setMinutes(
@@ -785,12 +723,11 @@ const ListMilking = () => {
     setSelectedSession({
       ...session,
       cow_id: String(session.cow_id),
-      milking_time: localMilkingTime.toISOString().slice(0, 16), // Format sesuai input datetime-local
+      milking_time: localMilkingTime.toISOString().slice(0, 16),
     });
     setShowEditModal(true);
   }, []);
 
-  // Handle editing a session
   const handleEditSession = async (e) => {
     e.preventDefault();
     try {
@@ -809,7 +746,7 @@ const ListMilking = () => {
         });
 
         setShowEditModal(false);
-        // Refresh sessions list
+
         const sessionsResponse = await getMilkingSessions();
         if (sessionsResponse.success && sessionsResponse.sessions) {
           setSessions(sessionsResponse.sessions);
@@ -832,7 +769,6 @@ const ListMilking = () => {
     }
   };
 
-  // Open view modal with session data
   const openViewModal = useCallback((session) => {
     setViewSession({
       ...session,
@@ -841,14 +777,11 @@ const ListMilking = () => {
     setShowViewModal(true);
   }, []);
 
-  // Handle exports
   const handleExportToPDF = () => exportMilkProductionToPDF();
   const handleExportToExcel = () => exportMilkProductionToExcel();
 
-  // Handle pagination
   const handlePageChange = (page) => setCurrentPage(page);
 
-  // Format milking time with badges based on time of day
   const getMilkingTimeLabel = (timeStr) => {
     const date = new Date(timeStr);
     const hours = date.getHours();
@@ -883,7 +816,6 @@ const ListMilking = () => {
     );
   };
 
-  // ========== CONSTANTS ==========
   const milkingTimeInfo = {
     Morning:
       "Milking session conducted in the morning (before 12 PM), typically yields higher milk volume.",
@@ -893,8 +825,6 @@ const ListMilking = () => {
       "Evening milking session (after 6 PM), usually the last session of the day.",
   };
 
-  // ========== RENDER METHODS ==========
-  // Show loading spinner
   if (loading) {
     return (
       <div
@@ -906,7 +836,6 @@ const ListMilking = () => {
     );
   }
 
-  // Show error message
   if (error) {
     return (
       <div className="container mt-4">
@@ -940,9 +869,9 @@ const ListMilking = () => {
             <div className="row g-2">
               {Object.entries(milkingTimeInfo).map(([period, description]) => {
                 const periodColors = {
-                  Morning: "#fff3cd", // Light yellow for morning
-                  Afternoon: "#d1ecf1", // Light blue for afternoon
-                  Evening: "#f8d7da", // Light red for evening
+                  Morning: "#fff3cd",
+                  Afternoon: "#d1ecf1",
+                  Evening: "#f8d7da",
                 };
 
                 return (
@@ -1747,7 +1676,6 @@ const ListMilking = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>Milker</Form.Label>
                   {currentUser?.role_id === 1 ? (
-                    // Admin bisa memilih milker dari daftar farmers yang mengelola cow yang dipilih
                     <Form.Select
                       value={newSession.milker_id}
                       onChange={(e) =>
@@ -1775,7 +1703,6 @@ const ListMilking = () => {
                       ))}
                     </Form.Select>
                   ) : (
-                    // Farmer hanya bisa menggunakan ID mereka sendiri
                     <>
                       <Form.Control
                         type="text"
