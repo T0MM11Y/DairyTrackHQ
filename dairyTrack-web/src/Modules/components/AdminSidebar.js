@@ -101,6 +101,32 @@ const AdminSidebar = ({ collapsed, activeMenu, onMenuToggle }) => {
       ],
       showForRoles: ["admin", "supervisor", "farmer"], // Only visible for admin, supervisor, and farmer
     },
+    {
+      id: "salesAndFinancial",
+      title: "Sales And Financial",
+      icon: "far fa-chart-bar", // Modified to bar chart for broader sales/finance context
+      submenu: [
+        {
+          id: "product-type",
+          title: "Product Type",
+          link: "/admin/product-type",
+        },
+        { id: "product", title: "Product", link: "/admin/product" },
+        {
+          id: "product-history",
+          title: "Product History",
+          link: "/admin/product-history",
+        },
+        { id: "sales", title: "Sales", link: "/admin/sales" },
+        { id: "finance", title: "Finance", link: "/admin/finance" },
+        {
+          id: "finance-record",
+          title: "Finance Record",
+          link: "/admin/finance-record",
+        },
+      ],
+      showForRoles: ["admin", "supervisor"], // Only visible for admin and supervisor
+    },
   ];
 
   // Filter menu items based on user role

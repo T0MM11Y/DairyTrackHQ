@@ -28,6 +28,16 @@ import Gallery from "./pages/Gallery";
 import { SocketProvider } from "../socket/socket";
 import CowsMilkAnalysis from "./pages/Admin/MilkProduction/Analythics/CowsMilkAnalysis";
 
+// sales and financial
+import ProductType from "./pages/Admin/ProductType/listProductType";
+import ProductStock from "./pages/Admin/Product/ListProductStock";
+import ProductHistory from "./pages/Admin/ProductHistory/ListProductHistory";
+import SalesOrder from "./pages/Admin/Order/ListOrder";
+import Finance from "./pages/Admin/Finance/Finance";
+import FinanceRecord from "./pages/Admin/Finance/FinanceRecords";
+import Product from "./pages/Product";
+import Order from "./pages/Order";
+
 // Protected Route component to check authentication
 const ProtectedRoute = ({ children, ...rest }) => {
   // Check if user data exists in localStorage
@@ -91,6 +101,20 @@ function App() {
               <Gallery />
               <Footer />
             </Route>
+
+            {/* Sales & financial */}
+            <Route path="/products">
+              <Header />
+              <Product />
+              <Footer />
+            </Route>
+
+            <Route path="/orders">
+              <Header />
+              <Order />
+              <Footer />
+            </Route>
+            {/* Sales & financial */}
 
             {/* Rute untuk halaman admin - with authentication protection */}
             <ProtectedRoute path="/admin" exact>
@@ -156,6 +180,38 @@ function App() {
             <ProtectedRoute path="/admin/cows-milk-analytics">
               <AdminLayout>
                 <CowsMilkAnalysis />
+              </AdminLayout>
+            </ProtectedRoute>
+
+            {/* Saless and Fincancial Section */}
+            <ProtectedRoute path="/admin/product-type">
+              <AdminLayout>
+                <ProductType />
+              </AdminLayout>
+            </ProtectedRoute>
+            <ProtectedRoute path="/admin/product">
+              <AdminLayout>
+                <ProductStock />
+              </AdminLayout>
+            </ProtectedRoute>
+            <ProtectedRoute path="/admin/product-history">
+              <AdminLayout>
+                <ProductHistory />
+              </AdminLayout>
+            </ProtectedRoute>
+            <ProtectedRoute path="/admin/sales">
+              <AdminLayout>
+                <SalesOrder />
+              </AdminLayout>
+            </ProtectedRoute>
+            <ProtectedRoute path="/admin/finance">
+              <AdminLayout>
+                <Finance />
+              </AdminLayout>
+            </ProtectedRoute>
+            <ProtectedRoute path="/admin/finance-record">
+              <AdminLayout>
+                <FinanceRecord />
               </AdminLayout>
             </ProtectedRoute>
           </Switch>
