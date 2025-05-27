@@ -5,12 +5,12 @@ class Config:
     DEBUG = os.environ.get('FLASK_DEBUG') or False
     TESTING = os.environ.get('FLASK_TESTING') or False
     # local development
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'mysql+pymysql://root:@localhost/dairytrack_massfortso' 
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'mysql+pymysql://root@127.0.0.1:3306/dairytrack_massfortso' 
     
     # production
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or (
-        'mysql+pymysql://dairytrackMassforsto_character:374a5a8be6c30f986befad6edbb60559355f68fc@yiy37.h.filess.io:61002/dairytrackMassforsto_character'
-    )
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or (
+    #     'mysql+pymysql://dairytrackMassforsto_character:374a5a8be6c30f986befad6edbb60559355f68fc@yiy37.h.filess.io:61002/dairytrackMassforsto_character'
+    # )
 
 
     

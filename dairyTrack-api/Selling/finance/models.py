@@ -5,6 +5,7 @@ from stock.models import User
 class ExpenseType(models.Model):
     class Meta:
         db_table = "expense_type"
+        managed = False
 
     objects = models.Manager()
     name = models.CharField(max_length=100, unique=True)
@@ -20,6 +21,7 @@ class ExpenseType(models.Model):
 class IncomeType(models.Model):
     class Meta:
         db_table = "income_type"
+        managed = False
 
     objects = models.Manager()
     name = models.CharField(max_length=100, unique=True)
@@ -35,6 +37,7 @@ class IncomeType(models.Model):
 class Expense(models.Model):
     class Meta:
         db_table = "expense"
+        managed = False
 
     objects = models.Manager()
     expense_type = models.ForeignKey(ExpenseType, on_delete=models.CASCADE, related_name="expenses")
@@ -69,6 +72,7 @@ class Expense(models.Model):
 class Income(models.Model):
     class Meta:
         db_table = "income"
+        managed = False
 
     objects = models.Manager()
     income_type = models.ForeignKey(IncomeType, on_delete=models.CASCADE, related_name="incomes")
@@ -103,6 +107,7 @@ class Income(models.Model):
 class Finance(models.Model):
     class Meta:
         db_table = "finance"
+        managed = False
 
     TRANSACTION_TYPES = [
         ('income', 'Income'),

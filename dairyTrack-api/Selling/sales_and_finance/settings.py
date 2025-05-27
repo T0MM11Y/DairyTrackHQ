@@ -48,6 +48,8 @@ ALLOWED_HOSTS = ['*']
 GUPSHUP_API_KEY = 'sk_49b512570561442898bf2a6cb4b4c001' 
 GUPSHUP_SOURCE_NUMBER = '917834811114'
 
+# pengaturan untuk menjalankan tugas di latar belakang
+BACKGROUND_TASK_RUN_ASYNC = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -59,7 +61,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # add depedencies
     'rest_framework',
-    'stock',
+    'background_task',
+    # 'stock',
+    'stock.apps.StockConfig',
     'sales',
     'finance',
     'notifications',
@@ -138,33 +142,33 @@ CORS_ALLOW_HEADERS = [
 # }
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'dairy_track',  # Ganti dengan nama database MySQL
-#         'USER': 'root',  # Ganti dengan username MySQL
-#         'PASSWORD': '',  # Ganti dengan password MySQL
-#         'HOST': 'localhost',  # Jika menggunakan server lain, ganti sesuai kebutuhan
-#         'PORT': '3306',  # Port default MySQL
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',  # Menggunakan utf8mb4 agar mendukung emoji dan karakter khusus
-#         },
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dairytrackMassforsto_character',  # Nama database MySQL
-        'USER': 'dairytrackMassforsto_character',  # Username MySQL
-        'PASSWORD': '374a5a8be6c30f986befad6edbb60559355f68fc',  # Password MySQL
-        'HOST': 'yiy37.h.filess.io',  # Host MySQL
-        'PORT': '61002',  # Port MySQL
+        'NAME': 'dairytrack_massfortso',  # Ganti dengan nama database MySQL
+        'USER': 'root',  # Ganti dengan username MySQL
+        'PASSWORD': '',  # Ganti dengan password MySQL
+        'HOST': 'localhost',  # Jika menggunakan server lain, ganti sesuai kebutuhan
+        'PORT': '3306',  # Port default MySQL
         'OPTIONS': {
-            'charset': 'utf8mb4',  # Mendukung emoji dan karakter khusus
+            'charset': 'utf8mb4',  # Menggunakan utf8mb4 agar mendukung emoji dan karakter khusus
         },
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'dairytrackMassforsto_character',  # Nama database MySQL
+#         'USER': 'dairytrackMassforsto_character',  # Username MySQL
+#         'PASSWORD': '374a5a8be6c30f986befad6edbb60559355f68fc',  # Password MySQL
+#         'HOST': 'yiy37.h.filess.io',  # Host MySQL
+#         'PORT': '61002',  # Port MySQL
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',  # Mendukung emoji dan karakter khusus
+#         },
+#     }
+# }
 
 
 
@@ -223,20 +227,43 @@ REST_FRAMEWORK = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
-        'file': {
+        'stock_file': {
             'class': 'logging.FileHandler',
-            'filename': 'whatsapp_errors.log',
+            'filename': os.path.join(BASE_DIR, 'logs/stock_tasks.log'),
+            'formatter': 'verbose',
+        },
+        'whatsapp_file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/whatsapp_errors.log'),
+            'formatter': 'verbose',
         },
     },
     'loggers': {
+        'stock': {
+            'handlers': ['console', 'stock_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console', 'whatsapp_file'],
+            'level': 'INFO',  # Ubah dari DEBUG ke INFO untuk mengurangi log autoreload
+            'propagate': False,
+        },
         '': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'handlers': ['console', 'whatsapp_file'],
+            'level': 'WARNING',  # Tingkatkan ke WARNING untuk root logger
+            'propagate': False,
         },
     },
 }
