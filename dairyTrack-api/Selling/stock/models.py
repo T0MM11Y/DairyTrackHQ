@@ -52,6 +52,7 @@ class ProductType(models.Model):
 
     class Meta:
         db_table = "product_type"
+        managed = False
 
     objects = models.Manager()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="product_type_created")
@@ -81,6 +82,7 @@ class ProductStock(models.Model):
 
     class Meta:
         db_table = "product_stock"
+        managed = False
     
     objects = models.Manager()
     product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE)
@@ -152,7 +154,8 @@ class ProductStock(models.Model):
 
     @classmethod
     def check_expired_products(cls):
-        """Otomatis set produk expired jika sudah melewati tanggal kadaluarsa"""
+        """Otomatis set produk expired jika sudah melewati tanggal kadaluarsa dan kirim notifikasi"""
+        from notifications.models import Notification  # Impor di dalam method untuk menghindari circular import
         expired_products = cls.objects.filter(expiry_at__lt=timezone.now(), status="available")
         
         with transaction.atomic():
@@ -164,6 +167,15 @@ class ProductStock(models.Model):
                     quantity_change=product.quantity
                 )
                 product.save()
+
+                # Kirim notifikasi bahwa produk telah kadaluarsa
+                Notification.objects.create(
+                    product_stock=product,
+                    user_id=2,  # Ganti dengan ID pengguna yang sesuai
+                    message=f"Produk {product.product_type} telah kadaluarsa pada {product.expiry_at}!",
+                    type='PRODUCT_EXPIRED',
+                    is_read=False
+                )
 
     @classmethod
     def sell_product(cls, product_type, quantity):
@@ -218,6 +230,7 @@ class StockHistory(models.Model):
 
     class Meta:
         db_table = "product_stock_history"
+        managed = False
 
     objects = models.Manager()
     product_stock = models.ForeignKey(ProductStock, on_delete=models.CASCADE)

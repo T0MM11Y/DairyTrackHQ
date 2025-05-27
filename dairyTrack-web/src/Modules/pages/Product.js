@@ -564,7 +564,7 @@ const Product = () => {
                                       <i className="fas fa-arrow-right ms-2"></i>
                                     </motion.button>
                                     <Link
-                                      to={`/order`}
+                                      to={`/orders`}
                                       className="action-btn-large"
                                       style={{
                                         backgroundColor: theme.primary,
@@ -892,7 +892,7 @@ const Product = () => {
                       Back to Products
                     </Button>
                     <Link
-                      to={`/order`}
+                      to={`/orders`}
                       className="action-btn-large"
                       style={{ backgroundColor: theme.primary, color: "white" }}
                     >

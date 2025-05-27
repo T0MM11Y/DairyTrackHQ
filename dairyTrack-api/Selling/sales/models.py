@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class Order(models.Model):
     class Meta:
         db_table = "order"
+        managed = False
     
     STATUS_CHOICES = [
         ('Requested', 'Requested'),
@@ -192,6 +193,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     class Meta:
         db_table = "order_item"
+        managed = False
 
     objects = models.Manager()
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="order_items")
@@ -218,6 +220,7 @@ class OrderItem(models.Model):
 class SalesTransaction(models.Model):
     class Meta:
         db_table = "sales_transaction"
+        managed = False
 
     objects = models.Manager()
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='transactions')
