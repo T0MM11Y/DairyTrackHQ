@@ -5,3 +5,4 @@ dairyTrack-web/node_modules/
 /dairyTrack-api/MilkProduction/app/database/__pycache__
 /dairyTrack-api/MilkProduction/app/models/__pycache__
 dairyTrack-api/Selling/whatsapp_errors.log
+/dairyTrack-api/Selling/logs
