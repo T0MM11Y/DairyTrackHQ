@@ -46,7 +46,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "api:all": "concurrently \"npm run api:milk\"",
-    "api:milk": "cd ../dairyTrack-api/MilkProduction && python run.py 0.0.0:5000",
+    "api:milk": "cd ../dairyTrack-api/MilkProduction && python run.py 0.0.0.0:5000",
     "api:selling": "cd ../dairyTrack-api/Selling && python manage.py runserver 0.0.0.0:5001",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix"

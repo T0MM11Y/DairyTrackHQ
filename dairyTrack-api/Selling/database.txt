@@ -62,6 +62,7 @@ CREATE TABLE `stock_history` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 C:\Users\khens\Envs\notesenv\Scripts\activate
+python manage.py process_tasks
 
 ===================== untuk bagian sales =========================
 
